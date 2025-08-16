@@ -22,7 +22,7 @@ export default function Header({ user }) {
           ) : (
             <>
               <Link className="text-sm" to="/login">Login</Link>
-              <Link className="text-sm" to="/register">Register</Link>
+              <Link className="text-sm" to="/register">Sign up</Link>
             </>
           )}
         </nav>
