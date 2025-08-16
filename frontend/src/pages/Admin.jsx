@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
+import Button from '../components/Button';
 
 function Admin() {
   const [metrics, setMetrics] = useState({ totalUsers: 0, totalStores: 0, totalRatings: 0 })
@@ -14,6 +15,8 @@ function Admin() {
   const [sortS, setSortS] = useState("name")
   const [newUser, setNewUser] = useState({ name: "", email: "", address: "", password: "", role: "USER" })
   const [newStore, setNewStore] = useState({ name: "", email: "", address: "", ownerId: "" })
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [isCreatingStore, setIsCreatingStore] = useState(false);
 
   const load = async () => {
     const met = await api.get('/admin/metrics')
@@ -28,15 +31,25 @@ function Admin() {
 
   const createUser = async (e) => {
     e.preventDefault()
-    await api.post('/admin/users', newUser)
-    setNewUser({ name: "", email: "", address: "", password: "", role: "USER" })
-    load()
+    setIsCreatingUser(true);
+    try {
+      await api.post('/admin/users', newUser)
+      setNewUser({ name: "", email: "", address: "", password: "", role: "USER" })
+      load()
+    } finally {
+      setIsCreatingUser(false);
+    }
   }
   const createStore = async (e) => {
     e.preventDefault()
-    await api.post('/admin/stores', { ...newStore, ownerId: newStore.ownerId || null, email: newStore.email || null })
-    setNewStore({ name: "", email: "", address: "", ownerId: "" })
-    load()
+    setIsCreatingStore(true);
+    try {
+      await api.post('/admin/stores', { ...newStore, ownerId: newStore.ownerId || null, email: newStore.email || null })
+      setNewStore({ name: "", email: "", address: "", ownerId: "" })
+      load()
+    } finally {
+      setIsCreatingStore(false);
+    }
   }
 
   return (
@@ -59,7 +72,7 @@ function Admin() {
             <option value="ADMIN">ADMIN</option>
             <option value="STORE_OWNER">STORE_OWNER</option>
           </select>
-          <button className="bg-gray-900 text-white md:col-span-5">Add User</button>
+          <Button className="bg-gray-900 text-white md:col-span-5" isLoading={isCreatingUser}>Add User</Button>
         </form>
       </div>
 
@@ -70,7 +83,7 @@ function Admin() {
           <input placeholder="Email (optional)" value={newStore.email} onChange={e=>setNewStore(s=>({...s, email:e.target.value}))} />
           <input placeholder="Address" value={newStore.address} onChange={e=>setNewStore(s=>({...s, address:e.target.value}))} />
           <input placeholder="OwnerId (optional)" value={newStore.ownerId} onChange={e=>setNewStore(s=>({...s, ownerId:e.target.value}))} />
-          <button className="bg-gray-900 text-white md:col-span-4">Add Store</button>
+          <Button className="bg-gray-900 text-white md:col-span-4" isLoading={isCreatingStore}>Add Store</Button>
         </form>
       </div>
 

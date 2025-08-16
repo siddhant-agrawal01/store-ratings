@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ const Signup = () => {
     password: '',
   });
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,11 +20,14 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await api.post('/auth/register', formData);
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,9 +80,9 @@ const Signup = () => {
             required
           />
         </div>
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+        <Button type="submit" className="bg-blue-500 text-white p-2 rounded" isLoading={isLoading}>
           Sign Up
-        </button>
+        </Button>
       </form>
     </div>
   );

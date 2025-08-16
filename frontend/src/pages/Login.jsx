@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import Button from '../components/Button';
 
 function Login({ setUser }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate()
 
   const submit = async (e) => {
     e.preventDefault()
     setError("")
+    setIsLoading(true);
     try {
       const { data } = await api.post('/auth/login', { email, password })
       localStorage.setItem('token', data.token)
@@ -24,6 +27,8 @@ function Login({ setUser }) {
       else navigate('/stores')
     } catch (e) {
       setError(e.response?.data?.message || e.message)
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -34,7 +39,7 @@ function Login({ setUser }) {
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
         <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} />
-        <button className="bg-gray-900 text-white" type="submit">Login</button>
+        <Button className="bg-gray-900 text-white" type="submit" isLoading={isLoading}>Login</Button>
         <p className="text-center text-sm">Don't have an account? <Link to="/register" className="text-blue-500">Sign up</Link></p>
       </form>
     </div>

@@ -7,14 +7,21 @@ function Stores() {
   const [q, setQ] = useState("")
   const [sort, setSort] = useState("name")
   const [order, setOrder] = useState("asc")
+  const [loadingStoreId, setLoadingStoreId] = useState(null);
+
   const fetchStores = async () => {
     const { data } = await api.get('/stores', { params: { q, sort, order } })
     setStores(data)
   }
   useEffect(() => { fetchStores() }, [q, sort, order])
   const rate = async (storeId, value) => {
-    await api.post('/ratings', { storeId, value })
-    fetchStores()
+    setLoadingStoreId(storeId);
+    try {
+      await api.post('/ratings', { storeId, value })
+      fetchStores()
+    } finally {
+      setLoadingStoreId(null);
+    }
   }
   return (
     <div className="max-w-5xl mx-auto p-4">
@@ -46,7 +53,7 @@ function Stores() {
             </div>
             <div className="mt-2">
               <div className="text-xs text-gray-500">Your Rating</div>
-              <RatingStars value={s.userRating ?? 0} onChange={(v)=>rate(s.id, v)} />
+              <RatingStars value={s.userRating ?? 0} onChange={(v)=>rate(s.id, v)} isLoading={loadingStoreId === s.id} />
             </div>
           </div>
         ))}
