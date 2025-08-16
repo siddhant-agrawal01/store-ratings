@@ -90,7 +90,6 @@ export const getUsers = async (req, res) => {
       ratings: true
     }
   });
-  // If user is Store Owner, include their store rating (average of their store if exists)
   const storeByOwner = await prisma.store.findMany({ select: { id: true, ownerId: true } });
   const map = new Map(storeByOwner.map(s => [s.ownerId, s.id]));
   const result = await Promise.all(users.map(async u => {
